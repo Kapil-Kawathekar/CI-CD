@@ -52,7 +52,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           token_format: "access_token"
-          workload_identity_provider: "projects/${{ secrets.WORKLOAD_IDENTITY_PROJECT }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider"
+          workload_identity_provider: "projects/${{ secrets.WORKLOAD_IDENTITY_PROJECT }}/locations/global/workloadIdentityPools/github-ci-cd/providers/github-actions-provider"
           service_account: "github-action-sa@my-kubernetes-project-438008.iam.gserviceaccount.com"
 
       # Make the deployment script executable
