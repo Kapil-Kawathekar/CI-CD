@@ -15,7 +15,7 @@ else
 fi
 
 # Define the image name
-IMAGE_NAME="gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(git rev-parse --short HEAD)"
+IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(git rev-parse --short HEAD)"
 
 echo "Building Docker image for $ENVIRONMENT environment..."
 docker build -t "$IMAGE_NAME" .
