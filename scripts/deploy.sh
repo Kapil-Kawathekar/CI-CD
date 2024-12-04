@@ -16,6 +16,9 @@ fi
 
 # Define the image name
 IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(git rev-parse --short HEAD)"
+# Authenticate Docker with GCP
+echo "Authenticating Docker with GCP..."
+gcloud auth configure-docker
 
 echo "Building Docker image for $ENVIRONMENT environment..."
 docker build -t "$IMAGE_NAME" .
