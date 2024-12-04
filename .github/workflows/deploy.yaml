@@ -1,0 +1,64 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy (e.g., staging-*, prod-*)'
+        required: true
+        type: string
+      environment:
+        description: 'Environment to deploy (staging or prod)'
+        required: true
+        type: string
+
+env:
+  STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
+  PROD_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_PROD }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
+      # Validate inputs and set environment variables
+      - name: Set Environment Variables
+        run: |
+          if [[ "${{ inputs.environment }}" == "staging" ]]; then
+            if [[ "${{ inputs.branch }}" != staging-* ]]; then
+              echo "Error: Branch name for staging must start with 'staging-'."
+              exit 1
+            fi
+            echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
+          elif [[ "${{ inputs.environment }}" == "prod" ]]; then
+            if [[ "${{ inputs.branch }}" != prod-* ]]; then
+              echo "Error: Branch name for prod must start with 'prod-'."
+              exit 1
+            fi
+            echo "PROJECT_ID=${{ env.PROD_PROJECT_ID }}" >> $GITHUB_ENV
+          else
+            echo "Error: Invalid environment '${{ inputs.environment }}'."
+            exit 1
+          fi
+
+      # Authenticate with GCP using Workload Identity Federation
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          token_format: "access_token"
+          workload_identity_provider: "projects/${{ secrets.WORKLOAD_IDENTITY_PROJECT }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider"
+          service_account: "github-action-sa@my-kubernetes-project-438008.iam.gserviceaccount.com"
+
+      # Make the deployment script executable
+      - name: Make Deploy Script Executable
+        run: chmod +x scripts/deploy.sh
+
+      # Execute the deployment script
+      - name: Push Docker Image
+        run: ./scripts/deploy.sh ${{ inputs.environment }}
