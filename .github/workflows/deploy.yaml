@@ -6,11 +6,15 @@ on:
       branch:
         description: 'Branch to deploy (e.g., staging-*, prod-*)'
         required: true
-        type: string
+        type: choice
       environment:
         description: 'Environment to deploy (staging or prod)'
         required: true
-        type: string
+        type: choice
+        options:
+          - staging
+          - production
+          - development
 
 env:
   STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
