@@ -6,7 +6,7 @@ on:
       branch:
         description: 'Branch to deploy (e.g., staging-*, prod-*)'
         required: true
-        type: choice
+        type: string
       environment:
         description: 'Environment to deploy (staging or prod)'
         required: true
