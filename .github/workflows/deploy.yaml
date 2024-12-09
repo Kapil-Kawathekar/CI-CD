@@ -24,7 +24,8 @@ jobs:
   deploy:
     permissions:
         id-token: write
-        contents: read
+        contents: write
+        # contents: write
 
     runs-on: ubuntu-latest
 
@@ -35,7 +36,7 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
           # Automatically uses the `GITHUB_TOKEN` provided by GitHub
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
 
       # Validate inputs and set environment variables
       - name: Set Environment Variables
