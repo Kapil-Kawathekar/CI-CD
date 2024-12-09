@@ -50,7 +50,7 @@ if git diff --exit-code $DEPLOYMENT_FILE; then
   echo "No changes detected in deployment.yaml, skipping commit."
 else
   git add $DEPLOYMENT_FILE
-  git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_TAG}"
+  git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
   git push
   echo "Changes committed and pushed to branch"
 fi
