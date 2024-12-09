@@ -70,3 +70,26 @@ jobs:
       # Execute the deployment script
       - name: Push Docker Image
         run: ./scripts/deploy.sh ${{ inputs.environment }}
+
+
+
+      # Update deployment.yaml with new image tag
+      - name: Set Git user for commit
+        run: |
+          git config --global user.name "ci-cd-bot"
+          git config --global user.email "ci-cd-bot@mydomain.com"
+          
+      - name: Update deployment.yaml with new image tag
+        run: |
+          ENVIRONMENT=${{ inputs.environment }}
+          IMAGE_TAG="us.gcr.io/${{ env.PROJECT_ID }}/my-app:${ENVIRONMENT}-$(git rev-parse --short HEAD)"
+          echo "Updating deployment.yaml with image tag: $IMAGE_TAG"
+
+          # Determine the path to the deployment.yaml based on the environment
+          DEPLOYMENT_FILE="k8s/${ENVIRONMENT}/deployment.yaml"
+
+          # Update the deployment.yaml file with the new image tag
+          sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_TAG}|" $DEPLOYMENT_FILE
+
+          # Check if the deployment.yaml was modified
+          git diff --exit-code $DEPLOYMENT_FILE || (git add $DEPLOYMENT_FILE && git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_TAG}" && git push)
