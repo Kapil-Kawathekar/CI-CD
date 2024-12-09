@@ -24,7 +24,7 @@ jobs:
   deploy:
     permissions:
         id-token: write
-        contents: write
+        contents: read
 
     runs-on: ubuntu-latest
 
