@@ -32,8 +32,8 @@ echo "Docker image successfully pushed: $IMAGE_NAME"
 DEPLOYMENT_FILE="k8/deploy.yaml"
 
 echo "Updating deployment.yaml with image tag: $IMAGE_TAG"
-# sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_TAG}|" $DEPLOYMENT_FILE
-sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
+sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
+# sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
 
 echo "Updated deployment.yaml file:"
 cat $DEPLOYMENT_FILE
