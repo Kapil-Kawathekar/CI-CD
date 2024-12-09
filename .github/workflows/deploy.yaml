@@ -24,7 +24,8 @@ jobs:
   deploy:
     permissions:
         id-token: write
-        contents: read
+        contents: write
+
     runs-on: ubuntu-latest
 
     steps:
@@ -33,6 +34,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ inputs.branch }}
+          # Automatically uses the `GITHUB_TOKEN` provided by GitHub
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Validate inputs and set environment variables
       - name: Set Environment Variables
