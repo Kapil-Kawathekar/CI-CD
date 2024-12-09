@@ -51,6 +51,6 @@ if git diff --exit-code $DEPLOYMENT_FILE; then
 else
   git add $DEPLOYMENT_FILE
   git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_TAG}"
-  git push origin "$BRANCH"
-  echo "Changes committed and pushed to branch $BRANCH"
+  git push
+  echo "Changes committed and pushed to branch"
 fi
