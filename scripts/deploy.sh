@@ -16,7 +16,7 @@ fi
 
 # Define the image name
 # IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(git rev-parse --short HEAD)"
-IMAGE_NAME = us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578
+IMAGE_NAME = "us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578"
 # Authenticate Docker with GCP
 echo "Authenticating Docker with GCP..."
 gcloud auth configure-docker
