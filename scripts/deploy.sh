@@ -63,6 +63,6 @@ echo "Creating Git Tag: $TAG_NAME"
 
 # Push the tag (with --force only if needed)
 git tag -f $TAG_NAME
-git push $TAG_NAME --force
+git push origin $TAG_NAME --force
 
 echo "Deployment completed successfully!"
