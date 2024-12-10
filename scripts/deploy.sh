@@ -55,3 +55,14 @@ else
   git push
   echo "Changes committed and pushed to branch"
 fi
+
+# Create a simplified Git tag
+SHORT_SHA=$(git rev-parse --short HEAD)
+TAG_NAME="${ENVIRONMENT}-release-${SHORT_SHA}"
+echo "Creating Git Tag: $TAG_NAME"
+
+# Push the tag (with --force only if needed)
+git tag -f $TAG_NAME
+git push $TAG_NAME --force
+
+echo "Deployment completed successfully!"
