@@ -42,14 +42,14 @@ jobs:
       - name: Set Environment Variables
         run: |
           if [[ "${{ inputs.environment }}" == "staging" ]]; then
-            if [[ "${{ inputs.branch }}" != staging-* ]]; then
-              echo "Error: Branch name for staging must start with 'staging-'."
+            if [[ "${{ inputs.branch }}" != staging-v* ]]; then
+              echo "Error: Branch name for staging must start with 'staging-v'."
               exit 1
             fi
             echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
           elif [[ "${{ inputs.environment }}" == "prod" ]]; then
-            if [[ "${{ inputs.branch }}" != prod-* ]]; then
-              echo "Error: Branch name for prod must start with 'prod-'."
+            if [[ "${{ inputs.branch }}" != prod-v* ]]; then
+              echo "Error: Branch name for prod must start with 'prod-v'."
               exit 1
             fi
             echo "PROJECT_ID=${{ env.PROD_PROJECT_ID }}" >> $GITHUB_ENV

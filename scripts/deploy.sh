@@ -29,7 +29,7 @@ docker push "$IMAGE_NAME"
 echo "Docker image successfully pushed: $IMAGE_NAME"
 
 # Update deployment.yaml file
-DEPLOYMENT_FILE="k8/deploy.yaml"
+DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
 
 echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
 # sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
