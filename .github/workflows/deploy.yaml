@@ -76,6 +76,13 @@ jobs:
         run: ./scripts/deploy.sh ${{ inputs.environment }}
 
 
+      - name: Create Unique Git Tag
+        run: |
+          TAG_NAME="staging-release-${{ github.sha }}-${{ github.run_number }}"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+
 
       # # Update deployment.yaml with new image tag
       # - name: Set Git user for commit
