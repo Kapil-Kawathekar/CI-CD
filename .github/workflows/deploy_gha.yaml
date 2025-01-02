@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}}
+      STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
       PROD_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_PROD }}
 
     steps:
