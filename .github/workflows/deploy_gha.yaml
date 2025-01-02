@@ -1,0 +1,85 @@
+name: Build and Deploy Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment (staging or prod)'
+        required: true
+        default: 'staging'
+      tag:
+        description: 'Tag name for the release'
+        required: true
+
+jobs:
+
+  deploy:
+    permissions:
+        id-token: write
+        contents: write
+  
+    runs-on: ubuntu-latest
+
+    env:
+      STAGING_PROJECT_ID: ${{ secrets.STAGING_PROJECT_ID }}
+      PROD_PROJECT_ID: ${{ secrets.PROD_PROJECT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set environment variables
+        id: set-vars
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
+            echo "PROJECT_ID=${{ secrets.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+            echo "PROJECT_ID=${{ secrets.PROD_PROJECT_ID }}" >> $GITHUB_ENV
+          else
+            echo "Invalid environment: ${{ github.event.inputs.environment }}"
+            exit 1
+          fi
+          echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          # token_format: "access_token"
+          workload_identity_provider: "projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "gha-pusher@my-kubernetes-project-438008.iam.gserviceaccount.com"
+
+      - name: Configure Docker to Authenticate with GCP
+        run: |
+          echo "Authenticating Docker with GCP..."
+          gcloud auth configure-docker us-docker.pkg.dev
+      - name: Build and push Docker image
+        run: |
+          IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
+          docker build --build-arg environment=${{ github.event.inputs.environment }} -t "$IMAGE_NAME" ./docker/vector
+          docker push "$IMAGE_NAME"
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Update deployment.yaml
+        run: |
+          DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+          sed -i "s|image: us-docker.pkg.dev.*vector:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "git-bot"
+          git config user.email "git-bot@gitdomain.com"
+          git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
+
+          if ! git diff --exit-code $DEPLOYMENT_FILE; then
+            git add $DEPLOYMENT_FILE
+            git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
+            git push origin "${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          else
+            echo "No changes detected in deployment.yaml, skipping commit."
+          fi
+
+      - name: Create and push tag
+        run: |
+          TAG_NAME="${{ github.event.inputs.tag }}-${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          git tag -f "$TAG_NAME"
+          git push origin "$TAG_NAME"
