@@ -3,10 +3,6 @@ name: CI/CD Pipeline
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to deploy (e.g., staging-*, prod-*)'
-        required: true
-        type: string
       environment:
         description: 'Environment to deploy (staging or prod)'
         required: true
@@ -15,6 +11,15 @@ on:
           - staging
           - production
           - development
+
+      build_image:
+        description: "Should the Docker image be built? If 'no', the workflow will reuse the image in branch."
+        required: true
+        default: "yes"
+        type: choice
+        options:
+          - "yes"
+          - "no"
 
 env:
   STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
@@ -73,7 +78,7 @@ jobs:
 
       # Execute the deployment script
       - name: Push Docker Image
-        run: ./scripts/deploy.sh ${{ inputs.environment }}
+        run: ./scripts/deploy.sh ${{ inputs.environment }} ${{ inputs.build_image }}
 
 
       # - name: Create Unique Git Tag
