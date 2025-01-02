@@ -75,6 +75,7 @@ if git diff --exit-code $DEPLOYMENT_FILE; then
   echo "No changes detected in deployment.yaml, skipping commit."
 else
   git add $DEPLOYMENT_FILE
+  git add -u
   git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
   # Push changes and set upstream branch if it doesn't exist
   git push --set-upstream origin "$BRANCH_NAME" || git push
