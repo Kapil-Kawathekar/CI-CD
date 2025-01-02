@@ -40,7 +40,11 @@ jobs:
             exit 1
           fi
           echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
+      - name: Checkout new branch
+        run: |
+          git config user.name "git-bot"
+          git config user.email "git-bot@gitdomain.com"
+          git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v2
         with:
@@ -68,7 +72,7 @@ jobs:
         run: |
           git config user.name "git-bot"
           git config user.email "git-bot@gitdomain.com"
-          git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          # git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
 
           # if ! git diff --exit-code $DEPLOYMENT_FILE; then
           git add $DEPLOYMENT_FILE
