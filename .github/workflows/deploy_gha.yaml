@@ -70,8 +70,19 @@ jobs:
       - name: Update deployment.yaml
         run: |
           DEPLOYMENT_FILE="k8/${{ github.event.inputs.environment }}/deploy.yaml"
+          echo "DEPLOYMENT_FILE=$DEPLOYMENT_FILE" >> GITHUB_ENV
           sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
           echo "Updated deployment.yaml with image tag: $IMAGE_NAME"
+
+      - name: Debug File Path
+        run: |
+          echo "DEPLOYMENT_FILE: $DEPLOYMENT_FILE"
+          ls -l $DEPLOYMENT_FILE
+
+      - name: Print Updated Deployment File
+        run: |
+          echo "Updated deployment file:"
+          cat $DEPLOYMENT_FILE
 
 
       - name: Commit and push changes
