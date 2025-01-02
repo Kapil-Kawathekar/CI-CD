@@ -70,7 +70,7 @@ jobs:
       - name: Update deployment.yaml
         run: |
           DEPLOYMENT_FILE="k8/${{ github.event.inputs.environment }}/deploy.yaml"
-          sed -i "s|image: us-docker.pkg.dev.*vector:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+          sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
           echo "Updated deployment.yaml with image tag: $IMAGE_NAME"
 
 
