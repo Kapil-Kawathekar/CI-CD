@@ -121,7 +121,7 @@ jobs:
           echo "Creating or moving tag $TAG_NAME to the latest commit on branch $BRANCH_NAME..."
       
           # Ensure we are on the correct branch
-          git checkout "$BRANCH_NAME"
+          git checkout "$NEW_BRANCH"
       
           # Create or move the tag
           git tag -f "$TAG_NAME"
