@@ -15,27 +15,14 @@ else
   exit 1
 fi
 
-BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
-echo "Fetching the latest image tag..."
-LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
-  --sort-by="~timestamp" --limit=1 --format="get(tags)")
-
-if [ -z "$LATEST_TAG" ]; then
-  echo "No image tags found in GCR. Exiting."
-  exit 1
-fi
-
-echo "Latest tag: $LATEST_TAG"
-
-
 
 # Define the image name
-IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
+# IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
 # IMAGE_NAME="us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578"
 
 # Check whether to build the image
 if [[ "$BUILD_IMAGE" == "yes" ]]; then
-
+  IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
   # Authenticate Docker with GCP
   echo "Authenticating Docker with GCP..."
   gcloud auth configure-docker
@@ -47,24 +34,37 @@ if [[ "$BUILD_IMAGE" == "yes" ]]; then
   docker push "$IMAGE_NAME"
   
   echo "Docker image successfully pushed: $IMAGE_NAME"
-  
-  # Update deployment.yaml file
-  DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
-  
-  echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
-  # sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
-  # sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-  sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-  # sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
-  
-  echo "Updated deployment.yaml file:"
-  cat $DEPLOYMENT_FILE
+
 else
   echo "Skipping Docker image build as per user input."
+  
+  BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
+  echo "Fetching the latest image tag..."
+  LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
+    --sort-by="~timestamp" --limit=1 --format="get(tags)")
+  
+  if [ -z "$LATEST_TAG" ]; then
+    echo "No image tags found in GCR. Exiting."
+    exit 1
+  fi
+  
+  echo "Latest tag: $LATEST_TAG"
   # If skipping, assume a default or existing image tag
-  IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-latest"
+  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG"
   echo "Using existing Docker image: $IMAGE_NAME"
 fi
+
+# Update deployment.yaml file
+DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+
+echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
+# sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
+# sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+# sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
+
+echo "Updated deployment.yaml file:"
+cat $DEPLOYMENT_FILE
 
 # Commit and push the updated file
 echo "Setting Git user..."
@@ -77,24 +77,15 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 BRANCH_NAME="${ENVIRONMENT}-updates"
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-  # Check for unstaged changes
-  if ! git diff --quiet; then
-    echo "Unstaged changes detected. Stashing them..."
-    git stash
-    STASH_APPLIED=true
-  else
-    STASH_APPLIED=false
-  fi
-  git fetch origin "$BRANCH_NAME"
-  git checkout "$BRANCH_NAME"
-  git pull --rebase origin "$BRANCH_NAME"
+  git branch -D "$BRANCH_NAME" || true
+  git push origin --delete "$BRANCH_NAME" || true
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
 fi
 
-# echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
-# git checkout -b "$BRANCH_NAME"
+echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
+git checkout -b "$BRANCH_NAME"
 
 git config core.fileMode false
 # Commit and push changes if any
