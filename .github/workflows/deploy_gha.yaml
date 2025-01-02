@@ -113,7 +113,7 @@ jobs:
       
           # Check if branch exists
          
-      
+          BRANCH_NAME=$NEW_BRANCH
           # Commit changes if there are any
           echo "Staging changes in $DEPLOYMENT_FILE..."
           git add "$DEPLOYMENT_FILE"
