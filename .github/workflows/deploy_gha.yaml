@@ -55,7 +55,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
-          docker build --build-arg environment=${{ github.event.inputs.environment }} -t "$IMAGE_NAME" ./docker/vector
+          docker build --build-arg environment=${{ github.event.inputs.environment }} -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
