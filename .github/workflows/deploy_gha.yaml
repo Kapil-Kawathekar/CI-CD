@@ -73,7 +73,8 @@ jobs:
           git config user.name "git-bot"
           git config user.email "git-bot@gitdomain.com"
           # git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
-
+          echo git status
+          echo git diff
           # if ! git diff --exit-code $DEPLOYMENT_FILE; then
           git add $DEPLOYMENT_FILE
           git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
