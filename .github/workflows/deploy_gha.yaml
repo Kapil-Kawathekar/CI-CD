@@ -40,11 +40,7 @@ jobs:
             exit 1
           fi
           echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-      - name: Checkout new branch
-        run: |
-          git config user.name "git-bot"
-          git config user.email "git-bot@gitdomain.com"
-          git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
+
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v2
         with:
@@ -63,26 +59,33 @@ jobs:
           docker push "$IMAGE_NAME"
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
+      - name: Create a new branch for changes
+        run: |
+          NEW_BRANCH="${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          git checkout -b "$NEW_BRANCH"
+          echo "Created and switched to branch: $NEW_BRANCH"
+          echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
+
+
       - name: Update deployment.yaml
         run: |
           DEPLOYMENT_FILE="k8/${{ github.event.inputs.environment }}/deploy.yaml"
           sed -i "s|image: us-docker.pkg.dev.*vector:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+          echo "Updated deployment.yaml with image tag: $IMAGE_NAME"
+
 
       - name: Commit and push changes
         run: |
           git config user.name "git-bot"
           git config user.email "git-bot@gitdomain.com"
-          # git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
-          echo git status
-          echo git diff
-          # if ! git diff --exit-code $DEPLOYMENT_FILE; then
-          git add $DEPLOYMENT_FILE
-          git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
-          git push origin "${{ github.event.inputs.environment }}-${TIMESTAMP}"
-          # else
-          #   echo "No changes detected in deployment.yaml, skipping commit."
-          # fi
-
+          if ! git diff --exit-code $DEPLOYMENT_FILE; then
+            git add $DEPLOYMENT_FILE
+            git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
+            git push origin "$NEW_BRANCH"
+            echo "Changes committed and pushed to branch $NEW_BRANCH"
+          else
+            echo "No changes detected in deployment.yaml, skipping commit."
+          fi
       - name: Create and push tag
         run: |
           TAG_NAME="${{ github.event.inputs.tag }}-${{ github.event.inputs.environment }}-${TIMESTAMP}"
