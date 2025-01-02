@@ -44,24 +44,18 @@ jobs:
           # token: ${{ secrets.GITHUB_TOKEN }}
 
       # Validate inputs and set environment variables
-      - name: Set Environment Variables
+      - name: Set environment variables
+        id: set-vars
         run: |
-          if [[ "${{ inputs.environment }}" == "staging" ]]; then
-            if [[ "${{ inputs.branch }}" != staging-v* ]]; then
-              echo "Error: Branch name for staging must start with 'staging-v'."
-              exit 1
-            fi
+          if [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
             echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
-          elif [[ "${{ inputs.environment }}" == "prod" ]]; then
-            if [[ "${{ inputs.branch }}" != prod-v* ]]; then
-              echo "Error: Branch name for prod must start with 'prod-v'."
-              exit 1
-            fi
+          elif [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "PROJECT_ID=${{ env.PROD_PROJECT_ID }}" >> $GITHUB_ENV
           else
-            echo "Error: Invalid environment '${{ inputs.environment }}'."
+            echo "Invalid environment: ${{ github.event.inputs.environment }}"
             exit 1
           fi
+          echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
       # Authenticate with GCP using Workload Identity Federation
       - name: Authenticate with GCP
