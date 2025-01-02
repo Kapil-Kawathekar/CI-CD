@@ -65,6 +65,14 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
   git fetch origin "$BRANCH_NAME"
   git checkout "$BRANCH_NAME"
+  # Check for unstaged changes
+  if ! git diff --quiet; then
+    echo "Unstaged changes detected. Stashing them..."
+    git stash
+    STASH_APPLIED=true
+  else
+    STASH_APPLIED=false
+  fi
   git pull --rebase origin "$BRANCH_NAME"
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
