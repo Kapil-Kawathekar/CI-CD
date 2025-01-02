@@ -85,31 +85,45 @@ jobs:
           cat $DEPLOYMENT_FILE
 
 
-      - name: Commit and push changes
+      - name: Commit and Push Changes
         run: |
           git config user.name "git-bot"
           git config user.email "git-bot@gitdomain.com"
-          echo "Checking for changes in $DEPLOYMENT_FILE..."
-          if git diff -- $DEPLOYMENT_FILE; then
-            echo "Changes detected. Staging $DEPLOYMENT_FILE..."
-            git add $DEPLOYMENT_FILE
       
-            # Verify if the file is staged correctly
-            if git diff --cached --exit-code; then
-              echo "No changes staged for commit. Exiting."
-              exit 0
-            fi
+          # Check if branch exists
+          BRANCH_NAME=$NEW_BRANCH
+          echo "Checking if branch $BRANCH_NAME exists..."
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME exists. Checking out..."
+            git checkout "$BRANCH_NAME"
+            git pull origin "$BRANCH_NAME"
+          else
+            echo "Branch $BRANCH_NAME does not exist. Creating new branch..."
+            git checkout -b "$BRANCH_NAME"
+          fi
       
+          # Commit changes if there are any
+          echo "Staging changes in $DEPLOYMENT_FILE..."
+          git add "$DEPLOYMENT_FILE"
+          if git diff --cached --exit-code; then
+            echo "No changes staged for commit. Exiting."
+          else
             echo "Committing changes..."
             git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
-            git push origin "$NEW_BRANCH"
-            echo "Changes committed and pushed to branch $NEW_BRANCH"
-          else
-            echo "No changes detected in $DEPLOYMENT_FILE. Skipping commit."
+            git push origin "$BRANCH_NAME"
+            echo "Changes committed and pushed to branch $BRANCH_NAME"
           fi
 
-      - name: Create and push tag
+      - name: Move or Create Tag
         run: |
-          TAG_NAME="${{ github.event.inputs.tag }}-${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          TAG_NAME="${{ github.event.inputs.environment }}-${{ github.event.inputs.tag }}"
+          echo "Creating or moving tag $TAG_NAME to the latest commit on branch $BRANCH_NAME..."
+      
+          # Ensure we are on the correct branch
+          git checkout "$BRANCH_NAME"
+      
+          # Create or move the tag
           git tag -f "$TAG_NAME"
-          git push origin "$TAG_NAME"
+          git push origin "$TAG_NAME" --force
+          echo "Tag $TAG_NAME moved to the latest commit on branch $BRANCH_NAME"
+      
