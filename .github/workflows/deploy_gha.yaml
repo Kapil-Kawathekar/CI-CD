@@ -70,13 +70,13 @@ jobs:
           git config user.email "git-bot@gitdomain.com"
           git checkout -b "${{ github.event.inputs.environment }}-${TIMESTAMP}"
 
-          if ! git diff --exit-code $DEPLOYMENT_FILE; then
-            git add $DEPLOYMENT_FILE
-            git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
-            git push origin "${{ github.event.inputs.environment }}-${TIMESTAMP}"
-          else
-            echo "No changes detected in deployment.yaml, skipping commit."
-          fi
+          # if ! git diff --exit-code $DEPLOYMENT_FILE; then
+          #   git add $DEPLOYMENT_FILE
+          #   git commit -m "Update image tag for ${{ github.event.inputs.environment }} to ${IMAGE_NAME}"
+          #   git push origin "${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          # else
+          #   echo "No changes detected in deployment.yaml, skipping commit."
+          # fi
 
       - name: Create and push tag
         run: |
