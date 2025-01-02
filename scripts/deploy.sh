@@ -50,7 +50,7 @@ else
   
   echo "Latest tag: $LATEST_TAG"
   # If skipping, assume a default or existing image tag
-  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG"
+  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG # Resuing the latest images present in the GCP Image registry"
   echo "Using existing Docker image: $IMAGE_NAME"
 fi
 
