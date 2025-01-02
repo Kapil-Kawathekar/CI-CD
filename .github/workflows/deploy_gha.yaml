@@ -32,9 +32,9 @@ jobs:
         id: set-vars
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
-            echo "PROJECT_ID=${{ secrets.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
+            echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
           elif [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
-            echo "PROJECT_ID=${{ secrets.PROD_PROJECT_ID }}" >> $GITHUB_ENV
+            echo "PROJECT_ID=${{ env.PROD_PROJECT_ID }}" >> $GITHUB_ENV
           else
             echo "Invalid environment: ${{ github.event.inputs.environment }}"
             exit 1
@@ -54,14 +54,14 @@ jobs:
           gcloud auth configure-docker us-docker.pkg.dev
       - name: Build and push Docker image
         run: |
-          IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
+          IMAGE_NAME="us.gcr.io/${PROJECT_ID}/my-app: ${{ github.event.inputs.environment }}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
           docker build --build-arg environment=${{ github.event.inputs.environment }} -t "$IMAGE_NAME" .
           docker push "$IMAGE_NAME"
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
       - name: Update deployment.yaml
         run: |
-          DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+          DEPLOYMENT_FILE="k8/${{ github.event.inputs.environment }}/deploy.yaml"
           sed -i "s|image: us-docker.pkg.dev.*vector:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 
       - name: Commit and push changes
