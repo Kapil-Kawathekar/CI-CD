@@ -67,6 +67,27 @@ jobs:
           echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
 
 
+          BRANCH_NAME=$NEW_BRANCH
+          if git show-ref --verify --quiet refs/heads/"$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME exists locally. Switching to it..."
+            git checkout "$BRANCH_NAME"
+            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+              echo "Pulling the latest changes for branch $BRANCH_NAME..."
+              git pull origin "$BRANCH_NAME" --rebase
+            fi
+          elif git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+            echo "Branch $BRANCH_NAME exists remotely. Checking out..."
+            git checkout -t origin/"$BRANCH_NAME"
+            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+              echo "Pulling the latest changes for branch $BRANCH_NAME..."
+              git pull origin "$BRANCH_NAME" --rebase
+            fi
+          else
+            echo "Branch $BRANCH_NAME does not exist. Creating new branch..."
+            git checkout -b "$BRANCH_NAME"
+          fi
+
+
       - name: Update deployment.yaml
         run: |
           DEPLOYMENT_FILE="k8/${{ github.event.inputs.environment }}/deploy.yaml"
@@ -91,25 +112,7 @@ jobs:
           git config user.email "git-bot@gitdomain.com"
       
           # Check if branch exists
-          BRANCH_NAME=$NEW_BRANCH
-          if git show-ref --verify --quiet refs/heads/"$BRANCH_NAME"; then
-            echo "Branch $BRANCH_NAME exists locally. Switching to it..."
-            git checkout "$BRANCH_NAME"
-            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
-              echo "Pulling the latest changes for branch $BRANCH_NAME..."
-              git pull origin "$BRANCH_NAME" --rebase
-            fi
-          elif git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
-            echo "Branch $BRANCH_NAME exists remotely. Checking out..."
-            git checkout -t origin/"$BRANCH_NAME"
-            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
-              echo "Pulling the latest changes for branch $BRANCH_NAME..."
-              git pull origin "$BRANCH_NAME" --rebase
-            fi
-          else
-            echo "Branch $BRANCH_NAME does not exist. Creating new branch..."
-            git checkout -b "$BRANCH_NAME"
-          fi
+         
       
           # Commit changes if there are any
           echo "Staging changes in $DEPLOYMENT_FILE..."
