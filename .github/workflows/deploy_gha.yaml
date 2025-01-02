@@ -61,7 +61,7 @@ jobs:
 
       - name: Create a new branch for changes
         run: |
-          NEW_BRANCH="${{ github.event.inputs.environment }}-${{ github.event.inputs.tag }}"
+          NEW_BRANCH="${{ github.event.inputs.environment }}"
           # git checkout -b "$NEW_BRANCH"
           # echo "Created and switched to branch: $NEW_BRANCH"
           echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
