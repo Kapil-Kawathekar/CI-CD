@@ -67,10 +67,11 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   git branch -D "$BRANCH_NAME" || true
   git push origin --delete "$BRANCH_NAME" || true
 fi
+
 echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
 git checkout -b "$BRANCH_NAME"
 
-
+git config core.fileMode false
 # Commit and push changes if any
 if git diff --exit-code $DEPLOYMENT_FILE; then
   echo "No changes detected in deployment.yaml, skipping commit."
