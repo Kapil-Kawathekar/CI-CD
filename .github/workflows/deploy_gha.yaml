@@ -93,6 +93,8 @@ jobs:
           # Check if branch exists
           BRANCH_NAME=$NEW_BRANCH
           echo "Checking if branch $BRANCH_NAME exists..."
+          echo "existed branch"
+          git ls-remote --heads origin 
           if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
             echo "Branch $BRANCH_NAME exists. Checking out..."
             git checkout "$BRANCH_NAME"
