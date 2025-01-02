@@ -15,9 +15,9 @@ else
   exit 1
 fi
 
-
+BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
 echo "Fetching the latest image tag..."
-LATEST_TAG=$(gcloud container images list-tags us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}\
+LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
   --sort-by="timestamp" --limit=1 --format="get(tags)")
 
 if [ -z "$LATEST_TAG" ]; then
