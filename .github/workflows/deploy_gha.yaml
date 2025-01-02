@@ -77,7 +77,8 @@ jobs:
             fi
           elif git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
             echo "Branch $BRANCH_NAME exists remotely. Checking out..."
-            git checkout -t origin/"$BRANCH_NAME"
+            git fetch
+            git checkout origin/"$BRANCH_NAME"
             if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
               echo "Pulling the latest changes for branch $BRANCH_NAME..."
               git pull origin "$BRANCH_NAME"
