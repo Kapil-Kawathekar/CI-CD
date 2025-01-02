@@ -95,9 +95,17 @@ jobs:
           if git show-ref --verify --quiet refs/heads/"$BRANCH_NAME"; then
             echo "Branch $BRANCH_NAME exists locally. Switching to it..."
             git checkout "$BRANCH_NAME"
+            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+              echo "Pulling the latest changes for branch $BRANCH_NAME..."
+              git pull origin "$BRANCH_NAME" --rebase
+            fi
           elif git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
             echo "Branch $BRANCH_NAME exists remotely. Checking out..."
             git checkout -t origin/"$BRANCH_NAME"
+            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+              echo "Pulling the latest changes for branch $BRANCH_NAME..."
+              git pull origin "$BRANCH_NAME" --rebase
+            fi
           else
             echo "Branch $BRANCH_NAME does not exist. Creating new branch..."
             git checkout -b "$BRANCH_NAME"
@@ -111,10 +119,6 @@ jobs:
           else
             echo "Committing changes..."
             git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
-            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
-              echo "Pulling the latest changes for branch $BRANCH_NAME..."
-              git pull origin "$BRANCH_NAME" --rebase
-            fi
             git push origin "$BRANCH_NAME"
             echo "Changes committed and pushed to branch $BRANCH_NAME"
           fi
