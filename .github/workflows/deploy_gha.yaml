@@ -78,14 +78,23 @@ jobs:
         run: |
           git config user.name "git-bot"
           git config user.email "git-bot@gitdomain.com"
-          # Commit and push changes if any
-          if git diff --exit-code $DEPLOYMENT_FILE; then
-            echo "No changes detected in deployment.yaml, skipping commit."
-          else
+          echo "Checking for changes in $DEPLOYMENT_FILE..."
+          if git diff -- $DEPLOYMENT_FILE; then
+            echo "Changes detected. Staging $DEPLOYMENT_FILE..."
             git add $DEPLOYMENT_FILE
+      
+            # Verify if the file is staged correctly
+            if git diff --cached --exit-code; then
+              echo "No changes staged for commit. Exiting."
+              exit 0
+            fi
+      
+            echo "Committing changes..."
             git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
             git push origin "$NEW_BRANCH"
-            echo "Changes committed and pushed to branch"
+            echo "Changes committed and pushed to branch $NEW_BRANCH"
+          else
+            echo "No changes detected in $DEPLOYMENT_FILE. Skipping commit."
           fi
 
       - name: Create and push tag
