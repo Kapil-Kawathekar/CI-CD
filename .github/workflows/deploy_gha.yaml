@@ -61,7 +61,7 @@ jobs:
 
       - name: Create a new branch for changes
         run: |
-          NEW_BRANCH="${{ github.event.inputs.environment }}"
+          NEW_BRANCH="${{ github.event.inputs.environment }}-${{ github.event.inputs.tag }}"
           # git checkout -b "$NEW_BRANCH"
           # echo "Created and switched to branch: $NEW_BRANCH"
           echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
@@ -128,7 +128,7 @@ jobs:
 
       - name: Move or Create Tag
         run: |
-          TAG_NAME="${{ github.event.inputs.environment }}-${{ github.event.inputs.tag }}"
+          TAG_NAME="${{github.event.inputs.tag }}"
           echo "Creating or moving tag $TAG_NAME to the latest commit on branch $BRANCH_NAME..."
       
           # Ensure we are on the correct branch
