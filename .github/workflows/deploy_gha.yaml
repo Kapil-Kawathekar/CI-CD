@@ -61,7 +61,7 @@ jobs:
 
       - name: Create a new branch for changes
         run: |
-          NEW_BRANCH="${{ github.event.inputs.environment }}-${TIMESTAMP}"
+          NEW_BRANCH="${{ github.event.inputs.environment }}-${{ github.event.inputs.tag }}"
           git checkout -b "$NEW_BRANCH"
           echo "Created and switched to branch: $NEW_BRANCH"
           echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
@@ -95,10 +95,9 @@ jobs:
           echo "Checking if branch $BRANCH_NAME exists..."
           echo "existed branch"
           git ls-remote --heads origin 
-          if git ls-remote --heads origin "$BRANCH_NAME" | grep "$BRANCH_NAME"; then
-            echo "Branch $BRANCH_NAME exists. Checking out..."
-            git checkout "$BRANCH_NAME"
-            git pull origin "$BRANCH_NAME"
+          if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+            echo "Branch $BRANCH_NAME exists remotely. Checking out..."
+            git checkout -t origin/"$BRANCH_NAME"
           else
             echo "Branch $BRANCH_NAME does not exist. Creating new branch..."
             git checkout -b "$BRANCH_NAME"
