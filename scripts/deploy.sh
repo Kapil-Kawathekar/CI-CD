@@ -71,8 +71,8 @@ else
   git checkout -b "$BRANCH_NAME"
 fi
 
-echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
-git checkout -b "$BRANCH_NAME"
+# echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
+# git checkout -b "$BRANCH_NAME"
 
 git config core.fileMode false
 # Commit and push changes if any
