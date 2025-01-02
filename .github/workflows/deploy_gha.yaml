@@ -110,10 +110,10 @@ jobs:
             echo "No changes staged for commit. Exiting."
           else
             echo "Committing changes..."
-                if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
-                  echo "Pulling the latest changes for branch $BRANCH_NAME..."
-                  git pull origin "$BRANCH_NAME" --rebase
-                fi
+            if git ls-remote --heads origin | grep "refs/heads/$BRANCH_NAME" > /dev/null; then
+              echo "Pulling the latest changes for branch $BRANCH_NAME..."
+              git pull origin "$BRANCH_NAME" --rebase
+            fi
             git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
             git push origin "$BRANCH_NAME"
             echo "Changes committed and pushed to branch $BRANCH_NAME"
