@@ -80,11 +80,13 @@ else
   git add -u
   git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
   # Push changes and set upstream branch if it doesn't exist
-  git push --set-upstream origin "$BRANCH_NAME" || git push
-  echo "Changes committed and pushed to branch '$BRANCH_NAME'."
+ 
+  echo "Changes committed to branch '$BRANCH_NAME'."
   # echo "Changes committed and pushed to branch"
 fi
 
+git push --set-upstream origin "$BRANCH_NAME" || git push
+echo "Changes committed and pushed to branch '$BRANCH_NAME'."
 # Create a simplified Git tag
 SHORT_SHA=$(date +%Y%m%d)
 TAG_NAME="${ENVIRONMENT}-o11y-${SHORT_SHA}"
