@@ -63,16 +63,13 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 BRANCH_NAME="${ENVIRONMENT}-updates"
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-  if ! git diff --quiet || ! git diff --cached --quiet; then
-    echo "Stashing uncommitted changes..."
-    git stash --include-untracked
-  fi
-  git checkout "$BRANCH_NAME"
-  git pull origin "$BRANCH_NAME"
-else
-  echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
-  git checkout -b "$BRANCH_NAME"
+    # Delete the branch locally and remotely
+  git branch -D "$BRANCH_NAME" || true
+  git push origin --delete "$BRANCH_NAME" || true
 fi
+echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
+git checkout -b "$BRANCH_NAME"
+
 
 # Commit and push changes if any
 if git diff --exit-code $DEPLOYMENT_FILE; then
