@@ -63,9 +63,12 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 BRANCH_NAME="${ENVIRONMENT}-updates"
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-    # Delete the branch locally and remotely
-  git branch -D "$BRANCH_NAME" || true
-  git push origin --delete "$BRANCH_NAME" || true
+  git fetch origin "$BRANCH_NAME"
+  git checkout "$BRANCH_NAME"
+  git pull --rebase origin "$BRANCH_NAME"
+else
+  echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
+  git checkout -b "$BRANCH_NAME"
 fi
 
 echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
