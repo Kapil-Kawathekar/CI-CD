@@ -15,6 +15,20 @@ else
   exit 1
 fi
 
+
+echo "Fetching the latest image tag..."
+LATEST_TAG=$(gcloud container images list-tags us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}\
+  --sort-by="timestamp" --limit=1 --format="get(tags)")
+
+if [ -z "$LATEST_TAG" ]; then
+  echo "No image tags found in GCR. Exiting."
+  exit 1
+fi
+
+echo "Latest tag: $LATEST_TAG"
+
+
+
 # Define the image name
 IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
 # IMAGE_NAME="us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578"
@@ -63,8 +77,6 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 BRANCH_NAME="${ENVIRONMENT}-updates"
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-  git fetch origin "$BRANCH_NAME"
-  git checkout "$BRANCH_NAME"
   # Check for unstaged changes
   if ! git diff --quiet; then
     echo "Unstaged changes detected. Stashing them..."
@@ -73,6 +85,8 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   else
     STASH_APPLIED=false
   fi
+  git fetch origin "$BRANCH_NAME"
+  git checkout "$BRANCH_NAME"
   git pull --rebase origin "$BRANCH_NAME"
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
