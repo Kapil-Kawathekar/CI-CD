@@ -106,7 +106,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
       done
       
       # Commit the conflict resolution
-      git commit -m "Resolved conflicts using 'ours' strategy"
+      # git commit -m "Resolved conflicts using 'ours' strategy"
   } || {
       echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
       exit 1
