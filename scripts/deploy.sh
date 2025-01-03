@@ -124,7 +124,7 @@ if git diff --exit-code $DEPLOYMENT_FILE; then
 else
   git add $DEPLOYMENT_FILE
   git add -u
-  git commit -m "Update image tag for $ENVIRONMENT environment to ${IMAGE_NAME}"
+  git commit -m "Update/Reuse the image"
   # Push changes and set upstream branch if it doesn't exist
  
   echo "Changes committed to branch '$BRANCH_NAME'."
