@@ -83,31 +83,19 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
 
   echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
   
-  # # Attempt the merge
-  # git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
-  #     # If merge fails, resolve conflicts
-  #     for file in $(git diff --name-only --diff-filter=U); do
-  #         git checkout --theirs "$file"
-  #         git add "$file"
-  #     done
-      
-  #     # Commit the conflict resolution
-  #     git commit --no-edit
-  # } || {
-  #     echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
-  #     exit 1
-  # }
-  # Rebase main onto the staging branch
-  git rebase origin/"$SOURCE_BRANCH" || {
-      echo "Merge conflicts detected. Resolving with 'theirs' strategy..."
-      
-      # Resolve conflicts by keeping the changes from 'main'
+  # Attempt the merge
+  git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
+      # If merge fails, resolve conflicts
       for file in $(git diff --name-only --diff-filter=U); do
           git checkout --theirs "$file"
           git add "$file"
       done
-  
-      git rebase --continue
+      
+      # Commit the conflict resolution
+      git push
+  } || {
+      echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+      exit 1
   }
 
 else
