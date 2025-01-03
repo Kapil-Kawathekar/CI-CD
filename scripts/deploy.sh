@@ -102,6 +102,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
         git checkout --ours "$file"
         git add "$file"
       done
+      git commit -m "Resolved conflicts using 'ours' strategy"
       git stash drop
     }
   fi
@@ -115,7 +116,7 @@ fi
 # git checkout -b "$BRANCH_NAME"
 
 echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
-git merge origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+git merge  --allow-unrelated-histories origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
 
 if [$? -ne 0]; then
   echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
