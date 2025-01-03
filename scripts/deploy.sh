@@ -73,7 +73,7 @@ else
   STASH_APPLIED=false
 fi
 git config core.fileMode false
-
+git config pull.rebase true
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
   # Stash changes if any
