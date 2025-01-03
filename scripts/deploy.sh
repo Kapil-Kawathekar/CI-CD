@@ -54,17 +54,6 @@ else
   echo "Using existing Docker image: $IMAGE_NAME"
 fi
 
-# Update deployment.yaml file
-DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
-
-echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
-# sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
-# sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-# sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
-
-echo "Updated deployment.yaml file:"
-cat $DEPLOYMENT_FILE
 
 # Commit and push the updated file
 echo "Setting Git user..."
@@ -92,20 +81,20 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   # git branch -D "$BRANCH_NAME" || true
   git pull origin "$BRANCH_NAME"
 
-  # Optionally reapply stashed changes
-  if [ "$STASH_APPLIED" = true ]; then
-    echo "Reapplying stashed changes..."
-    git stash pop || {
-      echo "Conflicts detected. Resolving automatically using 'ours' strategy..."
-      # Resolve all conflicts with 'ours'
-      for file in $(git diff --name-only --diff-filter=U); do
-        git checkout --ours "$file"
-        git add "$file"
-      done
-      git commit -m "Resolved conflicts using 'ours' strategy"
-      git stash drop
-    }
-  fi
+  # # Optionally reapply stashed changes
+  # if [ "$STASH_APPLIED" = true ]; then
+  #   echo "Reapplying stashed changes..."
+  #   git stash pop || {
+  #     echo "Conflicts detected. Resolving automatically using 'ours' strategy..."
+  #     # Resolve all conflicts with 'ours'
+  #     for file in $(git diff --name-only --diff-filter=U); do
+  #       git checkout --ours "$file"
+  #       git add "$file"
+  #     done
+  #     git commit -m "Resolved conflicts using 'ours' strategy"
+  #     git stash drop
+  #   }
+  # fi
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
@@ -117,13 +106,27 @@ fi
 
 echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
 git merge  --allow-unrelated-histories origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
-
+git config core.fileMode false
 if [$? -ne 0]; then
   echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
   exit 1
 fi
 
-git config core.fileMode false
+
+# Update deployment.yaml file
+DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+
+echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
+# sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
+# sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+# sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
+
+echo "Updated deployment.yaml file:"
+cat $DEPLOYMENT_FILE
+
+
+
 # Commit and push changes if any
 if git diff --exit-code $DEPLOYMENT_FILE; then
   echo "No changes detected in deployment.yaml, skipping commit."
