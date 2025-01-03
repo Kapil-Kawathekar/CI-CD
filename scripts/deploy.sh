@@ -98,7 +98,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   #     exit 1
   # }
   # Rebase main onto the staging branch
-  git rebase origin/main || {
+  git rebase origin/"$SOURCE_BRANCH" || {
       echo "Merge conflicts detected. Resolving with 'theirs' strategy..."
       
       # Resolve conflicts by keeping the changes from 'main'
