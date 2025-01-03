@@ -73,7 +73,7 @@ else
   STASH_APPLIED=false
 fi
 git config core.fileMode false
-git config pull.rebase true
+
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
   # Stash changes if any
@@ -81,36 +81,21 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   # git branch -D "$BRANCH_NAME" || true
   git pull origin "$BRANCH_NAME" 
 
-  # echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+  echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
   
-  # # Attempt the merge
-  # git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
-  #     # If merge fails, resolve conflicts
-  #     for file in $(git diff --name-only --diff-filter=U); do
-  #         git checkout --theirs "$file"
-  #         git add "$file"
-  #     done
-      
-  #     # Commit the conflict resolution
-  #     git push
-  # } || {
-  #     echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
-  #     exit 1
-  # }
-
-    # Attempt to rebase with automatic conflict resolution
-  git rebase origin/"$SOURCE_BRANCH" -X theirs || {
-
-      echo "Conflicts detected. Attempting automatic resolution using 'theirs' strategy..."
-      
-      # If conflicts occur, resolve them using 'theirs'
+  # Attempt the merge
+  git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
+      # If merge fails, resolve conflicts
       for file in $(git diff --name-only --diff-filter=U); do
           git checkout --theirs "$file"
           git add "$file"
       done
-
-      # Continue the rebase after resolving conflicts
-      git rebase --continue
+      
+      # Commit the conflict resolution
+      git push --set-upstream origin "$BRANCH_NAME" || git push
+  } || {
+      echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+      exit 1
   }
 
 
