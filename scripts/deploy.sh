@@ -96,8 +96,13 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   if [ "$STASH_APPLIED" = true ]; then
     echo "Reapplying stashed changes..."
     git stash pop || {
-      echo "Conflicts detected while applying stash. Please resolve manually."
-      exit 1
+      echo "Conflicts detected. Resolving automatically using 'ours' strategy..."
+      # Resolve all conflicts with 'ours'
+      for file in $(git diff --name-only --diff-filter=U); do
+        git checkout --ours "$file"
+        git add "$file"
+      done
+      git stash drop
     }
   fi
 else
