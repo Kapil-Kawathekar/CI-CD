@@ -92,7 +92,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
       done
       
       # Commit the conflict resolution
-      git push --set-upstream origin "$BRANCH_NAME" || git push
+      git commit --no-edit
   } || {
       echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
       exit 1
