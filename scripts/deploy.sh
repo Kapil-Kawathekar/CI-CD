@@ -77,11 +77,29 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 BRANCH_NAME="${ENVIRONMENT}-$(date +%Y%m%d)"
 SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
 git fetch origin
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Local changes detected. Stashing them..."
+  git stash
+  STASH_APPLIED=true
+else
+  STASH_APPLIED=false
+fi
+
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
+  # Stash changes if any
   git checkout "$BRANCH_NAME"
   # git branch -D "$BRANCH_NAME" || true
   git pull origin "$BRANCH_NAME"
+
+  # Optionally reapply stashed changes
+  if [ "$STASH_APPLIED" = true ]; then
+    echo "Reapplying stashed changes..."
+    git stash pop || {
+      echo "Conflicts detected while applying stash. Please resolve manually."
+      exit 1
+    }
+  fi
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
