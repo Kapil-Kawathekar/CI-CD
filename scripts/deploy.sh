@@ -101,7 +101,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
       # If merge fails, resolve conflicts
       for file in $(git diff --name-only --diff-filter=U); do
-          git checkout --ours "$file"
+          git checkout --theirs "$file"
           git add "$file"
       done
       
