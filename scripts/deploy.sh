@@ -92,11 +92,12 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
       done
       
       # Commit the conflict resolution
-      git push
+      git push --set-upstream origin "$BRANCH_NAME" || git push
   } || {
       echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
       exit 1
   }
+
 
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
@@ -130,7 +131,7 @@ else
   echo "Changes committed to branch '$BRANCH_NAME'."
   # echo "Changes committed and pushed to branch"
 fi
-
+git pull
 git push --set-upstream origin "$BRANCH_NAME" || git push
 echo "Changes committed and pushed to branch '$BRANCH_NAME'."
 # Create a simplified Git tag
