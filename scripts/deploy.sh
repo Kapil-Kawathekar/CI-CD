@@ -146,7 +146,7 @@ else
   echo "Changes committed to branch '$BRANCH_NAME'."
   # echo "Changes committed and pushed to branch"
 fi
-
+git pull
 git push --set-upstream origin "$BRANCH_NAME" || git push
 echo "Changes committed and pushed to branch '$BRANCH_NAME'."
 # Create a simplified Git tag
