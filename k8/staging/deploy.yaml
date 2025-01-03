@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: my-app123
   labels:
     app: my-app
 spec:
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250103080608-2e3badd # Resuing the latest images present in the GCP Image registry
+          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250102071124-432d11e
           ports:
             - containerPort: 8080
