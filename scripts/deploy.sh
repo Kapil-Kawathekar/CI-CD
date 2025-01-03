@@ -61,7 +61,6 @@ git config --global user.name "ci-cd-bot"
 git config --global user.email "ci-cd-bot@mydomain.com"
 
 
-
 # Check if the branch exists
 BRANCH_NAME="${ENVIRONMENT}-$(date +%Y%m%d)"
 SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
@@ -80,20 +79,7 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   # Stash changes if any
   git checkout "$BRANCH_NAME"
   # git branch -D "$BRANCH_NAME" || true
-  git pull origin "$BRANCH_NAME"
-
-  
-  # echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
-  # for file in $(git diff --name-only --diff-filter=U); do
-  #   git checkout --ours "$file"
-  #   git add "$file"
-  # done
-  # git commit -m "Resolved conflicts using 'ours' strategy"
-  # git merge  --allow-unrelated-histories origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
-  # if [$? -ne 0]; then
-  #   echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
-  #   exit 1
-  # fi
+  git pull origin "$BRANCH_NAME" 
 
   echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
   
@@ -112,32 +98,11 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
       exit 1
   }
 
-  
-
-  # # Optionally reapply stashed changes
-  # if [ "$STASH_APPLIED" = true ]; then
-  #   echo "Reapplying stashed changes..."
-  #   git stash pop || {
-  #     echo "Conflicts detected. Resolving automatically using 'ours' strategy..."
-  #     # Resolve all conflicts with 'ours'
-  #     for file in $(git diff --name-only --diff-filter=U); do
-  #       git checkout --ours "$file"
-  #       git add "$file"
-  #     done
-  #     git commit -m "Resolved conflicts using 'ours' strategy"
-  #     git stash drop
-  #   }
-  # fi
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
   git push --set-upstream origin "$BRANCH_NAME" || git push
 fi
-
-# echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
-# git checkout -b "$BRANCH_NAME"
-
-
 
 # Update deployment.yaml file
 DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
