@@ -83,12 +83,36 @@ if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAM
   git pull origin "$BRANCH_NAME"
 
   
-  echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
-  git merge  --allow-unrelated-histories origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
-  if [$? -ne 0]; then
-    echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
-    exit 1
-  fi
+  # echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
+  # for file in $(git diff --name-only --diff-filter=U); do
+  #   git checkout --ours "$file"
+  #   git add "$file"
+  # done
+  # git commit -m "Resolved conflicts using 'ours' strategy"
+  # git merge  --allow-unrelated-histories origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+  # if [$? -ne 0]; then
+  #   echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+  #   exit 1
+  # fi
+
+  echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+  
+  # Attempt the merge
+  git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
+      # If merge fails, resolve conflicts
+      for file in $(git diff --name-only --diff-filter=U); do
+          git checkout --ours "$file"
+          git add "$file"
+      done
+      
+      # Commit the conflict resolution
+      git commit -m "Resolved conflicts using 'ours' strategy"
+  } || {
+      echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+      exit 1
+  }
+
+  
 
   # # Optionally reapply stashed changes
   # if [ "$STASH_APPLIED" = true ]; then
