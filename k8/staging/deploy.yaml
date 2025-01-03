@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250103075433-4e311e4
+          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250103080608-2e3badd
           ports:
             - containerPort: 8080
