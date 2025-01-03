@@ -74,18 +74,30 @@ git config --global user.email "ci-cd-bot@mydomain.com"
 
 
 # Check if the branch exists
-BRANCH_NAME="${ENVIRONMENT}-updates"
+BRANCH_NAME="${ENVIRONMENT}-$(date +%Y%m%d)"
+SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
+git fetch origin
 if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-  git branch -D "$BRANCH_NAME" || true
-  git push origin --delete "$BRANCH_NAME" || true
+  git checkout "$BRANCH_NAME"
+  # git branch -D "$BRANCH_NAME" || true
+  git pull origin "$BRANCH_NAME"
 else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
+  git push --set-upstream origin "$BRANCH_NAME" || git push
 fi
 
-echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
-git checkout -b "$BRANCH_NAME"
+# echo "Branch '$BRANCH_NAME' does not exist/ deleted. Creating it..."
+# git checkout -b "$BRANCH_NAME"
+
+echo "Merging changes from '$SOURCE_BRANCH into '$BRANCH_NAME''"
+git merge origin/"$SOURCE_BRANCH" --no-ff -m "Merge updates from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+
+if [$? -ne 0]; then
+  echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+  exit 1
+fi
 
 git config core.fileMode false
 # Commit and push changes if any
