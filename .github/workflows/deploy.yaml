@@ -22,8 +22,8 @@ on:
           - "no"
 
 env:
-  STAGING_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
-  PROD_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_PROD }}
+  STAGING_PROJECT_ID: ${{vars.STAGING_PROJECT}}
+  PROD_PROJECT_ID: ${{vars.STAGING_PROJECT}}
 
 jobs:
   deploy:
