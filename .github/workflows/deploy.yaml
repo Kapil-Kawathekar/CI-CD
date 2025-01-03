@@ -56,6 +56,7 @@ jobs:
             exit 1
           fi
           echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+          echo "REPO STAGING PROJECT=$STAGING_PROJECT" >> $GITHUB_ENV
 
       # Authenticate with GCP using Workload Identity Federation
       - name: Authenticate with GCP
