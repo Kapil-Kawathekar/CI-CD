@@ -62,7 +62,7 @@ jobs:
         with:
           # token_format: "access_token"
           workload_identity_provider: "projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}"
-          service_account: "gha-pusher@${PROJECT_ID}.iam.gserviceaccount.com"
+          service_account: "gha-pusher@my-kubernetes-project-438008.iam.gserviceaccount.com"
 
 
       # Make the deployment script executable
