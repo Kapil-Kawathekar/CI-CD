@@ -43,7 +43,7 @@ jobs:
         #   # token: ${{ secrets.GITHUB_TOKEN }}
 
       # Validate inputs and set environment variables
-      - name: Set environment variables
+      - name: Set project variables
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
             echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
@@ -55,9 +55,10 @@ jobs:
           fi
           echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
           echo "REPO STAGING PROJECT=${{vars.STAGING_PROJECT}}" >> $GITHUB_ENV
-          echo "PROJEVCT ID : ${{env.PROJECT_ID}} "
+      - name: Set workload identity variables
+        run: |
           echo "WORKLOAD_IDENTITY=projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}" >> $GITHUB_ENV
-          echo "SERVICE_ACC=gha-pusher@$PROJECT_ID.iam.gserviceaccount.com" >> $GITHUB_ENV
+          echo "SERVICE_ACC=gha-pusher@ ${{env.PROJECT_ID}}.iam.gserviceaccount.com" >> $GITHUB_ENV
       # Authenticate with GCP using Workload Identity Federation
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
