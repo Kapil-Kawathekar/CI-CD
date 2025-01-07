@@ -145,8 +145,6 @@
 
 # echo "Deployment completed successfully!"
 
-
-
 #!/bin/bash
 set -e
 
@@ -216,9 +214,12 @@ sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 git diff --quiet "$DEPLOYMENT_FILE" || {
   git add "$DEPLOYMENT_FILE"
   git commit -m "Update/Reuse the image"
+  git checkout "$SOURCE_BRANCH"
+  git cherry-pick "$BRANCH_NAME"
+  git push
+  git checkout "$BRANCH_NAME"
+  git push
 }
-git pull --rebase
-git push
 
 # Tag the commit
 TAG_NAME="${ENVIRONMENT}-o11y-$(date +%Y%m%d)"
