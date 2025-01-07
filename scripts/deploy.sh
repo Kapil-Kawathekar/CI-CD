@@ -16,45 +16,6 @@ else
 fi
 
 
-# Define the image name
-# IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
-# IMAGE_NAME="us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578"
-
-# Check whether to build the image
-if [[ "$BUILD_IMAGE" == "yes" ]]; then
-  IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
-  # Authenticate Docker with GCP
-  echo "Authenticating Docker with GCP..."
-  gcloud auth configure-docker
-  
-  echo "Building Docker image for $ENVIRONMENT environment..."
-  docker build -t "$IMAGE_NAME" .
-  
-  echo "Pushing Docker image to GCP Container Registry..."
-  docker push "$IMAGE_NAME"
-  
-  echo "Docker image successfully pushed: $IMAGE_NAME"
-
-else
-  echo "Skipping Docker image build as per user input."
-  
-  BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
-  echo "Fetching the latest image tag..."
-  LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
-    --sort-by="~timestamp" --limit=1 --format="get(tags)")
-  
-  if [ -z "$LATEST_TAG" ]; then
-    echo "No image tags found in GCR. Exiting."
-    exit 1
-  fi
-  
-  echo "Latest tag: $LATEST_TAG"
-  # If skipping, assume a default or existing image tag
-  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG # Resuing the latest images present in the GCP Image registry"
-  echo "Using existing Docker image: $IMAGE_NAME"
-fi
-
-
 # Commit and push the updated file
 echo "Setting Git user..."
 git config --global user.name "ci-cd-bot"
@@ -103,6 +64,45 @@ else
   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
   git checkout -b "$BRANCH_NAME"
   git push --set-upstream origin "$BRANCH_NAME" || git push
+fi
+
+
+# Define the image name
+# IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
+# IMAGE_NAME="us.gcr.io/my-kubernetes-project-438008/my-app:staging-3b1c578"
+
+# Check whether to build the image
+if [[ "$BUILD_IMAGE" == "yes" ]]; then
+  IMAGE_NAME="us.gcr.io/$PROJECT_ID/my-app:${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
+  # Authenticate Docker with GCP
+  echo "Authenticating Docker with GCP..."
+  gcloud auth configure-docker
+  
+  echo "Building Docker image for $ENVIRONMENT environment..."
+  docker build -t "$IMAGE_NAME" .
+  
+  echo "Pushing Docker image to GCP Container Registry..."
+  docker push "$IMAGE_NAME"
+  
+  echo "Docker image successfully pushed: $IMAGE_NAME"
+
+else
+  echo "Skipping Docker image build as per user input."
+  
+  BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
+  echo "Fetching the latest image tag..."
+  LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
+    --sort-by="~timestamp" --limit=1 --format="get(tags)")
+  
+  if [ -z "$LATEST_TAG" ]; then
+    echo "No image tags found in GCR. Exiting."
+    exit 1
+  fi
+  
+  echo "Latest tag: $LATEST_TAG"
+  # If skipping, assume a default or existing image tag
+  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG # Resuing the latest images present in the GCP Image registry"
+  echo "Using existing Docker image: $IMAGE_NAME"
 fi
 
 # Update deployment.yaml file
