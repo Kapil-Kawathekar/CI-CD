@@ -55,14 +55,17 @@ jobs:
           fi
           echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
           echo "REPO STAGING PROJECT=${{vars.STAGING_PROJECT}}" >> $GITHUB_ENV
-
+          echo "WORKLOAD_IDENTITY=projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}" >> $GITHUB_ENV
+          echo "SERVICE_ACC=gha-pusher@${{env.PROJECT_ID}}.iam.gserviceaccount.com" >> $GITHUB_ENV
       # Authenticate with GCP using Workload Identity Federation
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
         with:
           # token_format: "access_token"
-          workload_identity_provider: "projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}"
-          service_account: "gha-pusher@${{env.PROJECT_ID}}.iam.gserviceaccount.com"
+          # workload_identity_provider: "projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}"
+          # service_account: "gha-pusher@${{env.PROJECT_ID}}.iam.gserviceaccount.com"
+          workload_identity_provider: ${{env.WORKLOAD_IDENTITY}}
+          service_account: ${{env.SERVICE_ACC}}
 
 
       # Make the deployment script executable
