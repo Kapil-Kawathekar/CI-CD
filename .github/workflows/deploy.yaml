@@ -58,7 +58,7 @@ jobs:
       - name: Set workload identity variables
         run: |
           echo "WORKLOAD_IDENTITY=projects/1034644372679/locations/global/workloadIdentityPools/github-pool/providers/${{vars.POOL_PROVIDER}}" >> $GITHUB_ENV
-          echo "SERVICE_ACC=gha-pusher@ ${{env.PROJECT_ID}}.iam.gserviceaccount.com" >> $GITHUB_ENV
+          echo "SERVICE_ACC=gha-pusher@${{env.PROJECT_ID}}.iam.gserviceaccount.com" >> $GITHUB_ENV
       # Authenticate with GCP using Workload Identity Federation
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
