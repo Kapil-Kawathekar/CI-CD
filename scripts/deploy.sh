@@ -130,7 +130,7 @@ else
  
   echo "Changes committed to branch '$BRANCH_NAME'."
   # echo "Changes committed and pushed to branch"
-  CHANGE_IN_IMAGE = "YES"
+  CHANGE_IN_IMAGE="YES"
 fi
 git pull
 git push --set-upstream origin "$BRANCH_NAME" || git push
