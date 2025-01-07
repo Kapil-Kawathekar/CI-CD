@@ -191,6 +191,7 @@ git rebase origin/"$SOURCE_BRANCH" || {
   echo "Rebase conflict detected. Resolving automatically..."
   git diff --name-only --diff-filter=U | xargs -I {} git checkout --theirs {}
   git add .
+  git commit -m "Resolved merge conflicts automatically"
   git rebase --continue
 }
 
