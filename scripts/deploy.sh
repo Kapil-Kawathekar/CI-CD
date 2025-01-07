@@ -117,7 +117,7 @@ sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 echo "Updated deployment.yaml file:"
 cat $DEPLOYMENT_FILE
 
-CHANGE_IN_IMAGE = "No"
+CHANGE_IN_IMAGE="No"
 
 # Commit and push changes if any
 if git diff --exit-code $DEPLOYMENT_FILE; then
@@ -136,12 +136,11 @@ git pull
 git push --set-upstream origin "$BRANCH_NAME" || git push
 echo "Changes committed and pushed to branch '$BRANCH_NAME'."
 
-if [[ "$CHANGE_IN_IMAGE" == "yes" ]]; then
-
+if [[ "$CHANGE_IN_IMAGE" == "YES" ]]; then
   git checkout "$SOURCE_BRANCH"
   git cherry-pick "$BRANCH_NAME"
   git push
-  echo "cherry picked to '$BRANCH_NAME'."
+  echo "Cherry-picked changes to '$SOURCE_BRANCH'."
 
 # Create a simplified Git tag
 SHORT_SHA=$(date +%Y%m%d)
