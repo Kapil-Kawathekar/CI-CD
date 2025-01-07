@@ -136,12 +136,6 @@ git pull
 git push --set-upstream origin "$BRANCH_NAME" || git push
 echo "Changes committed and pushed to branch '$BRANCH_NAME'."
 
-if $CHANGE_IN_IMAGE; then
-  git checkout "$SOURCE_BRANCH"
-  git cherry-pick "$BRANCH_NAME"
-  git push
-  echo "Cherry-picked changes to '$SOURCE_BRANCH'."
-fi
 
 # Create a simplified Git tag
 SHORT_SHA=$(date +%Y%m%d)
@@ -151,6 +145,15 @@ echo "Creating Git Tag: $TAG_NAME"
 # Push the tag (with --force only if needed)
 git tag -f $TAG_NAME
 git push origin $TAG_NAME --force
+
+
+if $CHANGE_IN_IMAGE; then
+  git checkout "$SOURCE_BRANCH"
+  git cherry-pick "$BRANCH_NAME"
+  git push
+  echo "Cherry-picked changes to '$SOURCE_BRANCH'."
+fi
+
 
 echo "Deployment completed successfully!"
 
