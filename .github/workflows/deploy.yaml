@@ -27,25 +27,19 @@ env:
 
 jobs:
   deploy:
-    permissions:
-        id-token: write
-        contents: write
-        # contents: write
-
     runs-on: ubuntu-latest
 
     steps:
       # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.branch }}
-          # Automatically uses the `GITHUB_TOKEN` provided by GitHub
-          # token: ${{ secrets.GITHUB_TOKEN }}
+        # with:
+        #   ref: ${{ inputs.branch }}
+        #   # Automatically uses the `GITHUB_TOKEN` provided by GitHub
+        #   # token: ${{ secrets.GITHUB_TOKEN }}
 
       # Validate inputs and set environment variables
       - name: Set environment variables
-        id: set-vars
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
             echo "PROJECT_ID=${{ env.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
