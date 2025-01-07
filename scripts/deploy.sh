@@ -141,6 +141,7 @@ if [[ "$CHANGE_IN_IMAGE" == "YES" ]]; then
   git cherry-pick "$BRANCH_NAME"
   git push
   echo "Cherry-picked changes to '$SOURCE_BRANCH'."
+fi
 
 # Create a simplified Git tag
 SHORT_SHA=$(date +%Y%m%d)
