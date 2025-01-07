@@ -195,7 +195,6 @@ git rebase origin/"$SOURCE_BRANCH" || {
   git commit -m "Resolved merge conflicts automatically"
   git rebase --continue || echo "Rebase completed with conflict resolution."
 }
-}
 
 # Build or fetch Docker image
 if [[ "$BUILD_IMAGE" == "yes" ]]; then
