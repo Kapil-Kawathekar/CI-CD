@@ -147,8 +147,6 @@
 
 
 
-
-
 #!/bin/bash
 set -e
 
@@ -188,11 +186,12 @@ else
   git push --set-upstream origin "$BRANCH_NAME"
 fi
 
-# Rebase source branch changes
+# Rebase source branch changes with automatic conflict resolution
 git rebase origin/"$SOURCE_BRANCH" || {
-  git rebase --abort
-  echo "Rebase failed. Please resolve conflicts manually."
-  exit 1
+  echo "Rebase conflict detected. Resolving automatically..."
+  git diff --name-only --diff-filter=U | xargs -I {} git checkout --theirs {}
+  git add .
+  git rebase --continue
 }
 
 # Build or fetch Docker image
@@ -226,4 +225,3 @@ git tag -f "$TAG_NAME"
 git push origin "$TAG_NAME" --force
 
 echo "Deployment completed successfully!"
-
