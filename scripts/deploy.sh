@@ -187,10 +187,12 @@ fi
 # Rebase source branch changes with automatic conflict resolution
 git rebase origin/"$SOURCE_BRANCH" || {
   echo "Rebase conflict detected. Resolving automatically..."
-  git diff --name-only --diff-filter=U | xargs -I {} git checkout --theirs {}
-  git add .
-  git commit -m "Resolved merge conflicts automatically"
-  git rebase --continue
+  while git diff --name-only --diff-filter=U | grep -q .; do
+    git diff --name-only --diff-filter=U | xargs -I {} git checkout --theirs {}
+    git add .
+    git rebase --continue || break
+  done
+  git commit -m "Resolved merge conflicts automatically" || true
 }
 
 # Build or fetch Docker image
