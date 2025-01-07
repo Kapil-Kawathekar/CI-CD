@@ -213,27 +213,28 @@ fi
 DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
 sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 
-# # Commit changes if any
-# git diff --quiet "$DEPLOYMENT_FILE" || {
-#   git add "$DEPLOYMENT_FILE"
-#   git commit -m "Update/Reuse the image"
-#   git checkout "$SOURCE_BRANCH"
-#   git cherry-pick "$BRANCH_NAME"
-#   git push
-#   git checkout "$BRANCH_NAME"
-#   git push
-# }
+# Commit changes if any
+git diff --quiet "$DEPLOYMENT_FILE" || {
+  git add "$DEPLOYMENT_FILE"
+  git commit -m "Update/Reuse the image"
+  git checkout "$SOURCE_BRANCH"
+  git cherry-pick "$BRANCH_NAME"
+  git push
+  git checkout "$BRANCH_NAME"
+  git push
+}
 
-# Commit all rebase changes, and cherry-pick image update to source branch
-git add .
-git commit -m "Update/Reuse the image and sync with source branch"
+git push origin "$BRANCH_NAME"
+# # Commit all rebase changes, and cherry-pick image update to source branch
+# git add .
+# git commit -m "Update/Reuse the image and sync with source branch"
 
-git checkout "$SOURCE_BRANCH"
-git cherry-pick "$BRANCH_NAME"
-git push
+# git checkout "$SOURCE_BRANCH"
+# git cherry-pick "$BRANCH_NAME"
+# git push
 
-git checkout "$BRANCH_NAME"
-git push
+# git checkout "$BRANCH_NAME"
+# git push
 
 
 # Tag the commit
