@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250107083922-31c30ca
+          image: us.gcr.io/my-kubernetes-project-438008/my-app:staging-20250107083922-31c30ca # Resuing the latest images present in the GCP Image registry
           ports:
             - containerPort: 8080
