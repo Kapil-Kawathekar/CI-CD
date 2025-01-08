@@ -80,7 +80,7 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
   
   # Create a simplified Git tag
   # SHORT_SHA=$(date +%Y%m%d)
-  TAG_NAME="${SOURCE_BRANCH}"
+  TAG_NAME="o11y-${SOURCE_BRANCH}"
   echo "Creating Git Tag: $TAG_NAME"
   
   # Push the tag (with --force only if needed)
