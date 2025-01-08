@@ -4,6 +4,7 @@ set -e
 # Input arguments
 ENVIRONMENT=$1
 BUILD_IMAGE=$2
+DEPLOY_TO_K8S=$3
 
 # Load the GCP project ID
 if [[ "$ENVIRONMENT" == "staging" ]]; then
@@ -86,76 +87,78 @@ if [[ "$BUILD_IMAGE" == "yes" ]]; then
   
   echo "Docker image successfully pushed: $IMAGE_NAME"
 
-else
-  echo "Skipping Docker image build as per user input."
+# else
+#   echo "Skipping Docker image build as per user input."
   
-  BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
-  echo "Fetching the latest image tag..."
-  LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
-    --sort-by="~timestamp" --limit=1 --format="get(tags)")
+#   BASE_IMAGE="us.gcr.io/$PROJECT_ID/my-app"
+#   echo "Fetching the latest image tag..."
+#   LATEST_TAG=$(gcloud container images list-tags $BASE_IMAGE\
+#     --sort-by="~timestamp" --limit=1 --format="get(tags)")
   
-  if [ -z "$LATEST_TAG" ]; then
-    echo "No image tags found in GCR. Exiting."
-    exit 1
+#   if [ -z "$LATEST_TAG" ]; then
+#     echo "No image tags found in GCR. Exiting."
+#     exit 1
+#   fi
+  
+#   echo "Latest tag: $LATEST_TAG"
+#   # If skipping, assume a default or existing image tag
+#   IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG # Resuing the latest images present in the GCP Image registry"
+#   echo "Using existing Docker image: $IMAGE_NAME"
+fi
+
+if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
+  if [[ "$BUILD_IMAGE" == "yes" ]]; then
+    # Update deployment.yaml file
+    DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+    
+    echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
+    # sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
+    # sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+    sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+    # sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
+    
+    echo "Updated deployment.yaml file:"
+    cat $DEPLOYMENT_FILE
+    
+    CHANGE_IN_IMAGE=false
+    
+    # Commit and push changes if any
+    if git diff --exit-code $DEPLOYMENT_FILE; then
+      echo "No changes detected in deployment.yaml, skipping commit."
+    else
+      git add $DEPLOYMENT_FILE
+      # git add -u
+      git commit -m "Update/Reuse the image"
+      # Push changes and set upstream branch if it doesn't exist
+     
+      echo "Changes committed to branch '$BRANCH_NAME'."
+      # echo "Changes committed and pushed to branch"
+      CHANGE_IN_IMAGE=true
+    fi
+    git pull
+    git push --set-upstream origin "$BRANCH_NAME" || git push
+    echo "Changes committed and pushed to branch '$BRANCH_NAME'."
   fi
   
-  echo "Latest tag: $LATEST_TAG"
-  # If skipping, assume a default or existing image tag
-  IMAGE_NAME="$BASE_IMAGE:$LATEST_TAG # Resuing the latest images present in the GCP Image registry"
-  echo "Using existing Docker image: $IMAGE_NAME"
+  # Create a simplified Git tag
+  SHORT_SHA=$(date +%Y%m%d)
+  TAG_NAME="${ENVIRONMENT}-o11y-${SHORT_SHA}"
+  echo "Creating Git Tag: $TAG_NAME"
+  
+  # Push the tag (with --force only if needed)
+  git tag -f $TAG_NAME
+  git push origin $TAG_NAME --force
+  
+  
+  if $CHANGE_IN_IMAGE; then
+    git checkout "$SOURCE_BRANCH"
+    git cherry-pick "$BRANCH_NAME"
+    git push
+    echo "Cherry-picked changes to '$SOURCE_BRANCH'."
+  fi
+  echo "Deployment completed successfully!"
 fi
 
-# Update deployment.yaml file
-DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
-
-echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
-# sed -i "s|^\(\s*image:\s*\).*|\1${IMAGE_TAG}|" $DEPLOYMENT_FILE
-# sed -i "s|image: us.gcr.io/$PROJECT_ID/my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
-# sed -i "s|image: *|image: ${IMAGE_TAG}|" "$DEPLOYMENT_FILE"
-
-echo "Updated deployment.yaml file:"
-cat $DEPLOYMENT_FILE
-
-CHANGE_IN_IMAGE=false
-
-# Commit and push changes if any
-if git diff --exit-code $DEPLOYMENT_FILE; then
-  echo "No changes detected in deployment.yaml, skipping commit."
-else
-  git add $DEPLOYMENT_FILE
-  # git add -u
-  git commit -m "Update/Reuse the image"
-  # Push changes and set upstream branch if it doesn't exist
- 
-  echo "Changes committed to branch '$BRANCH_NAME'."
-  # echo "Changes committed and pushed to branch"
-  CHANGE_IN_IMAGE=true
-fi
-git pull
-git push --set-upstream origin "$BRANCH_NAME" || git push
-echo "Changes committed and pushed to branch '$BRANCH_NAME'."
-
-
-# Create a simplified Git tag
-SHORT_SHA=$(date +%Y%m%d)
-TAG_NAME="${ENVIRONMENT}-o11y-${SHORT_SHA}"
-echo "Creating Git Tag: $TAG_NAME"
-
-# Push the tag (with --force only if needed)
-git tag -f $TAG_NAME
-git push origin $TAG_NAME --force
-
-
-if $CHANGE_IN_IMAGE; then
-  git checkout "$SOURCE_BRANCH"
-  git cherry-pick "$BRANCH_NAME"
-  git push
-  echo "Cherry-picked changes to '$SOURCE_BRANCH'."
-fi
-
-
-echo "Deployment completed successfully!"
 
 # #!/bin/bash
 # set -e
