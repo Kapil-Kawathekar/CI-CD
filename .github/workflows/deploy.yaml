@@ -84,7 +84,7 @@ jobs:
 
       # Execute the deployment script
       - name: Push Docker Image
-        run: ./scripts/deploy.sh ${{ inputs.environment }} ${{ inputs.build_image }}
+        run: ./scripts/deploy.sh ${{ inputs.environment }} ${{ inputs.build_image }} ${{ inputs.deploy_to_k8s}}
 
 
       # - name: Create Unique Git Tag
