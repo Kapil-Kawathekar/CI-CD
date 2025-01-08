@@ -129,12 +129,12 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
       git commit -m "Update/Reuse the image"
       # Push changes and set upstream branch if it doesn't exist
      
-      echo "Changes committed to branch '$BRANCH_NAME'."
+      echo "Changes committed to branch."
       # echo "Changes committed and pushed to branch"
     fi
     git pull
     git push --set-upstream origin "$BRANCH_NAME" || git push
-    echo "Changes committed and pushed to branch '$BRANCH_NAME'."
+    echo "Changes committed and pushed to branch."
   fi
   
   # Create a simplified Git tag
