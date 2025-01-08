@@ -23,49 +23,49 @@ git config --global user.name "ci-cd-bot"
 git config --global user.email "ci-cd-bot@mydomain.com"
 
 
-# Check if the branch exists
-BRANCH_NAME="${ENVIRONMENT}-$(date +%Y%m%d)"
-SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
-git fetch origin
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "Local changes detected. Stashing them..."
-  git stash
-  STASH_APPLIED=true
-else
-  STASH_APPLIED=false
-fi
-git config core.fileMode false
+# # Check if the branch exists
+# BRANCH_NAME="${ENVIRONMENT}-$(date +%Y%m%d)"
+# SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
+# git fetch origin
+# if ! git diff --quiet || ! git diff --cached --quiet; then
+#   echo "Local changes detected. Stashing them..."
+#   git stash
+#   STASH_APPLIED=true
+# else
+#   STASH_APPLIED=false
+# fi
+# git config core.fileMode false
 
-if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
-  echo "Branch '$BRANCH_NAME' exists. Checking it out..."
-  # Stash changes if any
-  git checkout "$BRANCH_NAME"
-  # git branch -D "$BRANCH_NAME" || true
-  git pull origin "$BRANCH_NAME" 
+# if git fetch origin "$BRANCH_NAME" && git rev-parse --verify "origin/$BRANCH_NAME" > /dev/null 2>&1; then
+#   echo "Branch '$BRANCH_NAME' exists. Checking it out..."
+#   # Stash changes if any
+#   git checkout "$BRANCH_NAME"
+#   # git branch -D "$BRANCH_NAME" || true
+#   git pull origin "$BRANCH_NAME" 
 
-  echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
+#   echo "Merging changes from '$SOURCE_BRANCH' into '$BRANCH_NAME'"
   
-  # Attempt the merge
-  git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
-      # If merge fails, resolve conflicts
-      for file in $(git diff --name-only --diff-filter=U); do
-          git checkout --theirs "$file"
-          git add "$file"
-      done
+#   # Attempt the merge
+#   git merge --allow-unrelated-histories origin/"$SOURCE_BRANCH" || {
+#       # If merge fails, resolve conflicts
+#       for file in $(git diff --name-only --diff-filter=U); do
+#           git checkout --theirs "$file"
+#           git add "$file"
+#       done
       
-      # Commit the conflict resolution
-      git commit --no-edit
-  } || {
-      echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
-      exit 1
-  }
+#       # Commit the conflict resolution
+#       git commit --no-edit
+#   } || {
+#       echo "Merge conflicts detected. Please check the source branch '$SOURCE_BRANCH' and target branch '$BRANCH_NAME'"
+#       exit 1
+#   }
 
 
-else
-  echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
-  git checkout -b "$BRANCH_NAME"
-  git push --set-upstream origin "$BRANCH_NAME" || git push
-fi
+# else
+#   echo "Branch '$BRANCH_NAME' does not exist. Creating it..."
+#   git checkout -b "$BRANCH_NAME"
+#   git push --set-upstream origin "$BRANCH_NAME" || git push
+# fi
 
 
 # Define the image name
