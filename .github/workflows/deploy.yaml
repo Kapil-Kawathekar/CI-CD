@@ -20,6 +20,14 @@ on:
         options:
           - "yes"
           - "no"
+      deploy_to_k8s:
+        description: "Should the changes deploy to k8s?."
+        required: true
+        default: "no"
+        type: choice
+        options:
+          - "yes"
+          - "no"
 
 env:
   STAGING_PROJECT_ID: ${{vars.STAGING_PROJECT}}
