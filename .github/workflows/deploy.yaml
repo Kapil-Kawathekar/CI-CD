@@ -28,6 +28,7 @@ on:
         options:
           - "yes"
           - "no"
+  push:
 
 env:
   STAGING_PROJECT_ID: ${{vars.STAGING_PROJECT}}
