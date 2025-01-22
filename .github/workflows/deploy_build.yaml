@@ -1,4 +1,4 @@
-name: Build and Push Image - 2
+name: Build and Push Image - 3
 
 on:
   workflow_dispatch:
@@ -28,6 +28,7 @@ on:
         options:
           - "yes"
           - "no"
+  push:
 
 env:
   STAGING_PROJECT_ID: ${{vars.STAGING_PROJECT}}
