@@ -41,14 +41,15 @@ else
 fi
 
 if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
+  # Update deployment.yaml file
+  DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
   if [[ "$BUILD_IMAGE" == "yes" ]]; then
     # Commit and push the updated file
     echo "Setting Git user..."
     git config --global user.name "ci-cd-bot"
     git config --global user.email "ci-cd-bot@mydomain.com"
     
-    # Update deployment.yaml file
-    DEPLOYMENT_FILE="k8/${ENVIRONMENT}/deploy.yaml"
+
     
     echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
     sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
