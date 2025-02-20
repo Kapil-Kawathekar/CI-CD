@@ -48,7 +48,7 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     git config --global user.email "ci-cd-bot@mydomain.com"
 
     echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
-    sed -i "s|image: *my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+    sed -i "s|image: us-docker.pkg.dev.*vector:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 
     echo "Updated deployment.yaml file:"
     cat $DEPLOYMENT_FILE
