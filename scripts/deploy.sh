@@ -18,15 +18,15 @@ else
   exit 1
 fi
 
-# Repository is still using "us.gcr.io" but it's actually in Artifact Registry
-REPOSITORY="us.gcr.io/$PROJECT_ID/my-app"
+# Define the repository path in Artifact Registry (not Container Registry)
+REPOSITORY="us-docker.pkg.dev/$PROJECT_ID/my-app"
 
 # Check whether to build the image
 if [[ "$BUILD_IMAGE" == "yes" ]]; then
   IMAGE_NAME="${REPOSITORY}:${SOURCE_BRANCH}-${ENVIRONMENT}-$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD)"
 
   echo "Authenticating Docker with Artifact Registry..."
-  gcloud auth configure-docker us.gcr.io
+  gcloud auth configure-docker us-docker.pkg.dev
 
   echo "Building Docker image for $ENVIRONMENT environment..."
   docker build -t "$IMAGE_NAME" .
@@ -48,7 +48,7 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     git config --global user.email "ci-cd-bot@mydomain.com"
 
     echo "Updating deployment.yaml with image tag: $IMAGE_NAME"
-    sed -i "s|image: us.gcr.io.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
+    sed -i "s|image: us-docker.pkg.dev.*my-app:.*|image: ${IMAGE_NAME}|" "$DEPLOYMENT_FILE"
 
     echo "Updated deployment.yaml file:"
     cat $DEPLOYMENT_FILE
@@ -70,7 +70,7 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
       exit 1
     fi
 
-    EXISTING_IMAGE=$(grep -oP 'image:\s*\Kus\.gcr\.io/[^ ]+' "$DEPLOYMENT_FILE")
+    EXISTING_IMAGE=$(grep -oP 'image:\s*\Kus-docker\.pkg\.dev/[^ ]+' "$DEPLOYMENT_FILE")
 
     if [[ -z "$EXISTING_IMAGE" ]]; then
       echo "Error: No image found in $DEPLOYMENT_FILE!"
