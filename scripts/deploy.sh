@@ -84,14 +84,16 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
       echo "Error: image $EXISTING_IMAGE not found"
       exit 1
     fi
-
-# Create a simplified Git tag
-TAG_NAME="o11y-${SOURCE_BRANCH}"
-echo "Creating Git Tag: $TAG_NAME"
-
-# Push the tag (with --force only if needed)
-git tag -f $TAG_NAME
-git push origin $T
+    echo "Image $EXISTING_IMAGE present"
+  fi
+    # Create a simplified Git tag
+  TAG_NAME="o11y-${SOURCE_BRANCH}"
+  echo "Creating Git Tag: $TAG_NAME"
+  # Push the tag (with --force only if needed)
+  git tag -f $TAG_NAME
+  git push origin $TAG_NAME
+  echo "Deployment completed successfully!"
+# <-- Close the if condition for BUILD_IMAGE == "yes"
 else
   echo "Skipping deployment"
-fi
+fi  # <-- Close the if condition for DEPLOY_TO_K8S == "yes"
