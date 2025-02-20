@@ -78,12 +78,18 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     fi
 
     echo "Checking if the image $EXISTING_IMAGE exists in $REPOSITORY"
-
-    if ! gcloud artifacts docker images list "$REPOSITORY" \
-       --format="get(name)" | grep -q "$(basename "$EXISTING_IMAGE")"; then
-      echo "Error: image $EXISTING_IMAGE not found in $REPOSITORY"
+    if gcloud artifacts docker images describe "$EXISTING_IMAGE" > /dev/null 2>&1; then
+      echo "✅ Image $EXISTING_IMAGE exists in Artifact Registry."
+    else
+      echo "❌ Error: Image $EXISTING_IMAGE not found in Artifact Registry."
       exit 1
     fi
+
+    # if ! gcloud artifacts docker images list "$REPOSITORY" \
+    #    --format="get(name)" | grep -q "$(basename "$EXISTING_IMAGE")"; then
+    #   echo "Error: image $EXISTING_IMAGE not found in $REPOSITORY"
+    #   exit 1
+    # fi
 
     echo "Image $EXISTING_IMAGE present"
   fi
