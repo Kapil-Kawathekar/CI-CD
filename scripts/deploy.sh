@@ -76,8 +76,21 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     git pull origin ${SOURCE_BRANCH}
     git push origin ${SOURCE_BRANCH}
     echo "Changes committed and pushed to branch ${SOURCE_BRANCH}."
-  fi
-  
+  else
+    echo "resuing the same image"
+    EXISTING_IMAGE = $(grep -oP 'image:\s*\Kus.gcr.io/[^ ]+' "$DEPLOYMENT_FILE")
+
+    if [[-z "$EXISTING_IMAGE"]]; then
+      echo "Error : No image found in patch-containers.yaml !"
+      exit 1
+    fi
+
+    echo "Checking if the image $EXISTING_IMAGE exists in artifact registry"
+    if !gcloud artifacts docker image list --repositories="us.gcr.io/$PROJECT_ID/my-app" \
+       --format="get(name)" | grep -q "$EXISTING_IMAGE"; then
+      echo "Error image: $EXISTING_IMAGE not found"
+      exit 1
+    fi
   # Create a simplified Git tag
   # SHORT_SHA=$(date +%Y%m%d)
   TAG_NAME="o11y-${SOURCE_BRANCH}"
