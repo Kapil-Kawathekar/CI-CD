@@ -88,7 +88,7 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     fi
 
     echo "Checking if the image $EXISTING_IMAGE exists in artifact registry"
-    if ! gcloud artifacts docker images list --repositories="us.gcr.io/$PROJECT_ID/my-app" \
+    if ! gcloud artifacts docker images list "us.gcr.io/$PROJECT_ID/my-app" \
        --format="get(name)" | grep -q "$EXISTING_IMAGE"; then
       echo "Error: image $EXISTING_IMAGE not found"
       exit 1
