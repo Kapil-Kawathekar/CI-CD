@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: us-docker.pkg.dev/my-kubernetes-project-438008/my-app/vector:staging-09-staging-20250220081705-0e6cca2
+          image: us-docker.pkg.dev/my-kubernetes-project-438008/my-app/vector:staging-09-staging-20250220082019-5663013
           ports:
             - containerPort: 8080
