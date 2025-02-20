@@ -19,7 +19,7 @@ else
 fi
 
 # Define the repository path in Artifact Registry (not Container Registry)
-REPOSITORY="us-docker.pkg.dev/$PROJECT_ID/my-app"
+REPOSITORY="us-docker.pkg.dev/$PROJECT_ID/my-app/vector"
 
 # Check whether to build the image
 if [[ "$BUILD_IMAGE" == "yes" ]]; then
