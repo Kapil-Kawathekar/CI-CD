@@ -18,7 +18,7 @@ else
   exit 1
 fi
 
-# Define the repository path in Artifact Registry (not Container Registry)
+# Define the repository path in Artifact Registry
 REPOSITORY="us-docker.pkg.dev/$PROJECT_ID/my-app/vector"
 
 # Check whether to build the image
@@ -77,21 +77,19 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
       exit 1
     fi
 
-    echo "Checking if the image $EXISTING_IMAGE exists in $REPOSITORY"
-    if gcloud artifacts docker images describe "$EXISTING_IMAGE" > /dev/null 2>&1; then
+    echo "🔍 Checking if the image $EXISTING_IMAGE exists in Artifact Registry..."
+
+    # Extract the image path and tag separately
+    IMAGE_PATH=$(echo "$EXISTING_IMAGE" | awk -F':' '{print $1}')
+    IMAGE_TAG=$(echo "$EXISTING_IMAGE" | awk -F':' '{print $2}')
+
+    if gcloud artifacts docker tags list "$IMAGE_PATH" \
+       --format="get(tag)" | grep -q "$IMAGE_TAG"; then
       echo "✅ Image $EXISTING_IMAGE exists in Artifact Registry."
     else
       echo "❌ Error: Image $EXISTING_IMAGE not found in Artifact Registry."
       exit 1
     fi
-
-    # if ! gcloud artifacts docker images list "$REPOSITORY" \
-    #    --format="get(name)" | grep -q "$(basename "$EXISTING_IMAGE")"; then
-    #   echo "Error: image $EXISTING_IMAGE not found in $REPOSITORY"
-    #   exit 1
-    # fi
-
-    echo "Image $EXISTING_IMAGE present"
   fi
 
   TAG_NAME="o11y-${SOURCE_BRANCH}"
