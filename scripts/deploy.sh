@@ -70,8 +70,16 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
     echo "Changes committed and pushed to branch ${SOURCE_BRANCH}."
   else
     echo "Reusing the same image"
+    echo "DEPLOYMENT FILE  : $DEPLOYMENT_FILE"
+    # Check if the deployment file exists
+    if [[ ! -f "$DEPLOYMENT_FILE" ]]; then
+      echo "Error: $DEPLOYMENT_FILE does not exist!"
+      exit 1
+    fi
+
+    EXISTING_IMAGE=$(grep -oP 'image:\s*\Kus\.gcr\.io/[^ ]+' "$DEPLOYMENT_FILE")
     
-    EXISTING_IMAGE=$(grep -oP 'image:\s*\Kus.gcr.io/[^ ]+' "$DEPLOYMENT_FILE")
+    # EXISTING_IMAGE=$(grep -oP 'image:\s*\Kus.gcr.io/[^ ]+' "$DEPLOYMENT_FILE")
 
     if [[ -z "$EXISTING_IMAGE" ]]; then
       echo "Error: No image found in patch-containers.yaml!"
