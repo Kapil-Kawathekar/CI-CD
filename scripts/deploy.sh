@@ -93,5 +93,5 @@ echo "Creating Git Tag: $TAG_NAME"
 git tag -f $TAG_NAME
 git push origin $T
 else
-    echo "Skipping deployment"
+  echo "Skipping deployment"
 fi
