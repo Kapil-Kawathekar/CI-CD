@@ -85,10 +85,13 @@ if [[ "$DEPLOY_TO_K8S" == "yes" ]]; then
       exit 1
     fi
 
-    # Create a simplified Git tag
-    TAG_NAME="o11y-${SOURCE_BRANCH}"
-    echo "Creating Git Tag: $TAG_NAME"
-    
-    # Push the tag (with --force only if needed)
-    git tag -f $TAG_NAME
-    git push origin $T
+# Create a simplified Git tag
+TAG_NAME="o11y-${SOURCE_BRANCH}"
+echo "Creating Git Tag: $TAG_NAME"
+
+# Push the tag (with --force only if needed)
+git tag -f $TAG_NAME
+git push origin $T
+else
+    echo "Skipping deployment"
+fi
